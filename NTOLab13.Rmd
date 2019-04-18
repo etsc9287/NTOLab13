@@ -10,29 +10,46 @@ library(tidyverse)
 library(lubridate)
 library(stringr)
 
-### countries ###
-# U.S.
-# China
-# U.K.
-# Nigeria
-# India
-# Cuba
-# South Africa
-# Iran
-# Syria
-# Jordan
-# Norway
-# Nepal
-# Peru
-# Brazil
-# Venezuela
-# Philippines
-# France
-# Italy 
-# Singapore
-# Australia 
+perm_mean <- function(perms, values, n1)
+{
+## step one
+  result <- vector("numeric", perms)
+  
+  # Loop throught number of permutations
+  for (i in 1:perms)
+  {
+    x <- sample(1:length(values), n1)
+  
+  group1 <- values[x]
+  group2 <- values[-x]
 
-#place individual read_csvs here
+  diff <- mean(group1)-mean(group2)
+  result[i] <- diff
+    # Step 4:
+
+  }
+  # Step 5:
+ result <- as.tibble(result)
+ #print(result)
+}
+
+perm_cor <- function(perms,x,y){
+  result <- vector("numeric",perms)
+
+for( i in c(1:perms))
+{
+  y <- sample(y,length(y))
+  c <- cor(x,y)
+  result[i] <- c
+}
+result <- as.tibble(result)
+}
+
+#paste csvs here
+
+#Ethan csvs
+math <- read_csv("math_achievement_8th_grade.csv")
+out_of_school <- read_csv("children_out_of_school_primary.csv")
 ```
 
 ****
@@ -55,7 +72,46 @@ library(stringr)
 #### Ethan's Subquestion
 ****
 
-```{r,echo = FALSE}
+```{r,echo = FALSE, error = FALSE}
+
+countries <- gapminder::gapminder_unfiltered %>%
+  filter(year == 2007) %>%
+  select(country, pop)
+
+merged <- inner_join(math, out_of_school, by = "country") %>%
+  filter(!is.na(`2007.x`) & !is.na(`2007.y`)) %>%
+  mutate(math_scores_2007 = `2007.x`) %>%
+  mutate(outofschool_2007 = `2007.y`) %>%
+  select(country, math_scores_2007, outofschool_2007)
+
+merged2 <- inner_join(merged, countries, by = "country") %>%
+  mutate(out_of_school_perc = outofschool_2007 / pop)
+
+ggplot(data = merged2) +
+  geom_point(mapping = aes(x = out_of_school_perc, y = math_scores_2007)) +
+  xlab("Percentage of Country Population that are Children out of School") +
+  ylab("Average TIMSS Score") +
+  ggtitle("Proportion of Children out of School vs. Math Achievement of 8th Graders") +
+  geom_text(mapping = aes(out_of_school_perc, y = math_scores_2007, 
+            label = ifelse(math_scores_2007 < 360 | out_of_school_perc > 0.01 | country %in% c("Japan", "United Kingdom", "Italy", "Australia"), country, ""),
+            hjust = ifelse(out_of_school_perc < 0.04, -0.15, 1.15), vjust = 0))
+
+corr <- perm_cor(1000,merged2$out_of_school_perc, merged2$math_scores_2007) 
+c_95 <- quantile(corr$value,.95) #0.281
+c_05 <- quantile(corr$value,.05) #-0.294
+actual <- cor(merged2$out_of_school_perc,merged2$math_scores_2007) #-0.47
+
+ggplot(data=corr,mapping = aes(x=value))+
+  geom_histogram(size = 1)+
+  geom_vline(xintercept = c_95, color="red", size = 1) +
+  geom_text(aes(x = c_95, y = 50, label = "95th Percentile")) +
+  geom_vline(xintercept = actual, color="blue", size = 1) +
+  geom_text(aes(x = actual, y = 50, label = "Actual")) +
+  geom_vline(xintercept = c_05, color="red", size = 1) +
+  geom_text(aes(x = c_05, y = 50, label = "5th Percentile")) +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
 ```
 
