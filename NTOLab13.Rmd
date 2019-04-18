@@ -72,20 +72,24 @@ out_of_school <- read_csv("children_out_of_school_primary.csv")
 #### Ethan's Subquestion
 ****
 
-```{r,echo = FALSE, error = FALSE}
+```{r,echo = FALSE}
+
+#Data Merging / Transformation
 
 countries <- gapminder::gapminder_unfiltered %>%
   filter(year == 2007) %>%
-  select(country, pop)
+  select(country, pop) #Need population value for my countries to get proportions
 
 merged <- inner_join(math, out_of_school, by = "country") %>%
-  filter(!is.na(`2007.x`) & !is.na(`2007.y`)) %>%
+  filter(!is.na(`2007.x`) & !is.na(`2007.y`)) %>% #gets countries for these years with no NA's
   mutate(math_scores_2007 = `2007.x`) %>%
   mutate(outofschool_2007 = `2007.y`) %>%
   select(country, math_scores_2007, outofschool_2007)
 
 merged2 <- inner_join(merged, countries, by = "country") %>%
-  mutate(out_of_school_perc = outofschool_2007 / pop)
+  mutate(out_of_school_perc = outofschool_2007 / pop) #creates proportion variable
+
+#Scatter Plot
 
 ggplot(data = merged2) +
   geom_point(mapping = aes(x = out_of_school_perc, y = math_scores_2007)) +
@@ -95,6 +99,8 @@ ggplot(data = merged2) +
   geom_text(mapping = aes(out_of_school_perc, y = math_scores_2007, 
             label = ifelse(math_scores_2007 < 360 | out_of_school_perc > 0.01 | country %in% c("Japan", "United Kingdom", "Italy", "Australia"), country, ""),
             hjust = ifelse(out_of_school_perc < 0.04, -0.15, 1.15), vjust = 0))
+
+#Permutation test
 
 corr <- perm_cor(1000,merged2$out_of_school_perc, merged2$math_scores_2007) 
 c_95 <- quantile(corr$value,.95) #0.281
