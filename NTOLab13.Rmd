@@ -10,6 +10,28 @@ library(tidyverse)
 library(lubridate)
 library(stringr)
 
+### countries ###
+# U.S.
+# China
+# U.K.
+# Nigeria
+# India
+# Cuba
+# South Africa
+# Iran
+# Syria
+# Jordan
+# Norway
+# Nepal
+# Peru
+# Brazil
+# Venezuela
+# Philippines
+# France
+# Italy 
+# Singapore
+# Australia 
+
 #place individual read_csvs here
 ```
 
