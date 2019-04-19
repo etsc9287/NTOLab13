@@ -173,6 +173,46 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
+doubles <- merged2 %>%
+  select(-country)
+
+relevant_stats <- function(df, stat_type){
+  
+  if (stat_type == "spread") {
+    
+    type1 <- "Standard Deviation(s)"
+    output1 <- map_dbl(df, sd)
+    type2 <- "Inter-Quartile Range(s)"
+    output2 <- map_dbl(df, IQR)
+    list(type1, output1, type2, output2)
+    
+  } else if (stat_type == "average") {
+    
+    type1 <- "Median(s)"
+    output1 <- map_dbl(df, median)
+    type2 <- "Mean(s)"
+    output2 <- map_dbl(df, mean)
+    list(output1, output2)
+    
+  } else if (stat_type == "extreme") {
+    
+    type1 <- "Max(s)"
+    output1 <- map_dbl(df, max)
+    type2 <- "Min(s)"
+    output2 <- map_dbl(df, min)
+    list(type1, output1, type2, output2)
+    
+  } else {
+    
+    output1 <- "Please Enter a Known Stat Type (spread, average, extreme)"
+    output1
+  }
+
+  
+}
+
+relevant_stats(doubles, "extreme")
+
 ```
 
 ****
