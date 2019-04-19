@@ -552,5 +552,5 @@ ggplot(data=corr,mapping = aes(x=value))+
 * David - individual section, general edits, helped resolve gitKraken merge errors.
 * Arie - 
 * Anderson - Individual Section
-* Ethan -
+* Ethan - Individual Section, Anderson function
 * Ryan - Individual section
