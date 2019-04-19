@@ -76,6 +76,11 @@ data2 <- read.csv('literacy_rate_adult_female_percent_of_females_ages_15_above.c
 ****
 #### Arie's Subquestion
 ****
+* Question: Is there a correlation between completion of primary school and the gender ratio of mean years in school in 1999 and 2015? This question is important and interesting because this will show the how gender equality differs by country, and help us understand why this is happening.
+
+* Null hypotheises: There is not a significant correlation between gender ratio of mean years in school and primary school completion, there is not difference by country.
+
+* Alternative hypotheises: There is a significant correlation between gender ratio of mean years in school and primary school completion, there is a difference by country.
 
 ```{r,echo = FALSE, warning=FALSE, message=FALSE}
 
@@ -84,13 +89,18 @@ Q <- inner_join(MeanYears25to34, Literacy, by = "country")%>%select(c(country, `
   filter(!is.na(`1999.y`), !is.na(`2015.y`), country == "Switzerland"| country == "South Korea" | country == "Sweden" | country == "Belize" | country == "Colombia" | country == "Cuba" | country == "Ethiopia" | country == "Guatemala" | country == "Ghana" | country == "India" | country == "Mexico"| country == "Venezuela" | country == "Palestine" | country == "Italy" | country == "Austria")
 
 ### ggplot ###
+plot.1999 <- ggplot(data = Q, mapping = aes(x = `1999.x`, y = `1999.y`, color = country))+geom_point()+
+  geom_smooth(mapping = aes(x = `1999.x`, y = `1999.y`), method = "lm", se = FALSE, size = .5, color = "black")+
+  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion 1999")
+plot.1999
+plot.2015 <-ggplot(data = Q, mapping = aes(x = `2015.x`, y = `2015.y`, color = country))+geom_point()+geom_smooth(mapping = aes(x = `2015.x`, y = `2015.y`), method = "lm", se = FALSE, size = .5, color = "black")+
+  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion 2015")
+plot.2015
 
-ggplot(data = Q)+geom_line(mapping = aes(x = `1999.x`, y = `1999.y`, color = "1999"))+geom_line(mapping = aes(x = `2015.x`, y = `2015.y`, color = "2015"))+
-  geom_smooth(mapping = aes(x = `1999.x`, y = `1999.y`), method = "lm", se = FALSE, size = .5, color = "black")+geom_smooth(mapping = aes(x = `2015.x`, y = `2015.y`), method = "lm", se = FALSE, size = .5, color = "black")+
-  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion")
 ```
 
-```{r,echo = FALSE, warning=FALSE}
+
+```{r,echo = FALSE, warning=FALSE, message=FALSE}
 ### actual correlation ###
 bb1999 <- cor(Q$`1999.x`, Q$`1999.y`)
 
@@ -118,9 +128,38 @@ ggplot(data=corr1999, mapping = aes(x=value))+
   geom_text(aes(x = ccP5, y = 3, label = "5th Percentile")) +
   xlab("Correlation Constant") +
   ylab("Count") +
-  ggtitle("Correlation Permutation Test for Average years in school vs. Primary school completion in 1999")
+  ggtitle("Correlation Permutation Test in 1999")
+
+ggplot(data=corr2015, mapping = aes(x=value))+
+  geom_histogram(size = 1)+
+  geom_vline(xintercept = ccp95, color="red", size = 1) +
+  geom_text(aes(x = cc95, y = 3, label = "95th Percentile")) +
+  geom_vline(xintercept = bb1999, color="blue", size = 1) +
+  geom_text(aes(x = bb1999, y = 3, label = "Actual")) +
+  geom_vline(xintercept = cc5, color="red", size = 1) +
+  geom_text(aes(x = cc5, y = 3, label = "5th Percentile")) +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for 2015")
+
+### Function ###
+Q2 <- Q%>%
+  select(-country)
+
+fun <-function(df,sd){
+  dg <- map_dbl(df,sd)
+  
+  dg
+ 
+}
+
+fun(Q2, sd)
 
 ```
+
+* Findings: From my correlation permutation tests I found that for both years there is a significant correlation bewteen gender ratio of the number years attending school up to university and completion of primary school. The correlation for 1999 was 0.8 and 2015 was 0.6. This shows that there was a stronger positive correlation amoungst other countires 1999 than in 2015. This makes sense because in poorer countries there is still more gender inequality compared to more develpoed countries. Also, since both correlations are past the 95th percentile we can say both are statisitcally significant and lables to matter.
+
+* Description: My function uses `map_dbl` to show the standard deviation of a data frame for each column.
 
 ****
 #### Ethan's Subquestion
