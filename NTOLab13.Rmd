@@ -212,7 +212,68 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
+<<<<<<< Updated upstream
+=======
+doubles <- merged2 %>%
+  select(-country)
 ```
+
+```{r,echo = TRUE}
+relevant_stats <- function(df, stat_type){
+  
+  if (stat_type == "spread") {
+    
+    type1 <- "Standard Deviation(s)"
+    output1 <- map_dbl(df, sd)
+    type2 <- "Inter-Quartile Range(s)"
+    output2 <- map_dbl(df, IQR)
+    list(type1, output1, type2, output2)
+    
+  } else if (stat_type == "average") {
+    
+    type1 <- "Median(s)"
+    output1 <- map_dbl(df, median)
+    type2 <- "Mean(s)"
+    output2 <- map_dbl(df, mean)
+    list(output1, output2)
+    
+  } else if (stat_type == "extreme") {
+    
+    type1 <- "Max(s)"
+    output1 <- map_dbl(df, max)
+    type2 <- "Min(s)"
+    output2 <- map_dbl(df, min)
+    list(type1, output1, type2, output2)
+    
+  } else {
+    
+    output1 <- "Please Enter a Known Stat Type (spread, average, extreme)"
+    output1
+  }
+
+  
+}
+```
+
+```{r,echo = FALSE,warning=FALSE}
+
+relevant_stats(doubles, "extreme")
+
+>>>>>>> Stashed changes
+```
+
+* Subquestion: Is there a correlation between the proportion of children in a given country that don't go to school and the average 8th grade TIMSS (math achievement) score for that country?
+
+* Graph #1 Description: This scatterplot displays the raw data between proportion of children out of school and TIMSS scores for 8th graders.  I used geom_point and if_else statements to specify which countries I wanted labeled (Note: I could only access total population from the given countries and not children population, so my x-axis displays the proportion of the entire country's population that are children out of school.  This should have negligable effect on the correlation.)
+
+* Permutation Description:
++ Null Hypothesis: cor = 0
++ Alernative Hypothesis: cor != 0
++ Test Stat: Correlation
++ Conclusion / Percentile: My histogram shows that we can reject the null hypothesis as there is a clear negative correlation between proportion of a country's children in school and 8th grade math achievement for that country.  The 5th percentile correlation is a correlation constant calue of -0.298, and the actual value falls at the 2nd percentile at a correlation constant of -0.475.
+
+* Function / Mapping Description: My function takes a data frame and a statistic type as parameters and uses conditional statements to print various statistics of that data frame based on the statistic type.  Map_dbl is used to get the relevant statistic type(s) for each column of the data frame.  For example, if the user inputs "doubles" as the first parameter and "extreme" as the second parameter, my function will get the max's and mins for every column of the all-doubles data frame.  The output is a list so I can print multiple mappings.
+
 
 ****
 #### Anderson's Subquestion
