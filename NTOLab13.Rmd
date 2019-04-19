@@ -212,8 +212,7 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
-<<<<<<< Updated upstream
-=======
+
 doubles <- merged2 %>%
   select(-country)
 ```
@@ -259,7 +258,6 @@ relevant_stats <- function(df, stat_type){
 
 relevant_stats(doubles, "extreme")
 
->>>>>>> Stashed changes
 ```
 
 * Subquestion: Is there a correlation between the proportion of children in a given country that don't go to school and the average 8th grade TIMSS (math achievement) score for that country?
