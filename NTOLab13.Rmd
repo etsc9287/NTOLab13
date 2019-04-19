@@ -54,6 +54,10 @@ out_of_school <- read_csv("children_out_of_school_primary.csv")
 #Arie's Csv
 MeanYears25to34 <- read_csv("mean_years_in_school_women_percent_men_25_to_34_years.csv")
 Literacy <- read_csv("primary_completion_rate_total_percent_of_relevant_age_group.csv")
+
+#Ryan's csvs
+hdi <- read_csv("hdi.csv")
+ratio <- read_csv("ratio.csv")
 ```
 
 ****
@@ -238,8 +242,69 @@ ggplot(data = percor,mapping = aes(x=value))+
 ****
 
 ```{r,echo = FALSE}
+#tidying and joining df
+merged <- inner_join(hdi, ratio, by = "country") %>%
+  filter(!is.na(`2015.x`) & !is.na(`2015.y`)) %>% #gets countries for these years with no NA's
+  mutate(hdi_2015 = `2015.x`) %>%
+  mutate(ratio_2015 = `2015.y`) %>%
+  select(country, hdi_2015, ratio_2015)
+
+#using functions
+
+col_summary <- function(df, fun) {
+  out <- vector("double", length(df))
+  for (i in seq_along(df)) {
+    out[i] <- fun(df[[i]])
+  }
+  out
+}
+
+merged1 <- merged %>% transmute(hdi = hdi_2015, ratio = ratio_2015)
+col_summary(merged1, sd) #find standard deviation of hdi and ratio
+
+hdi1 <- merged1$hdi
+
+#using map
+map_dbl(hdi1, mean) #calculates mean of each row of hdi
+
+
+#Scatter Plot
+
+ggplot(data = merged) +
+  geom_point(mapping = aes(x = hdi_2015, y = ratio_2015)) +
+  xlab("Percentage of Country Population that are Children out of School") +
+  ylab("Average TIMSS Score") +
+  ggtitle("Proportion of Children out of School vs. Math Achievement of 8th Graders") 
+
+#Permutation test
+
+corr <- perm_cor(1000,merged$hdi_2015, merged$ratio_2015) 
+c_95 <- quantile(corr$value,.95) #0.147
+c_05 <- quantile(corr$value,.05) #-0.143
+actual <- cor(merged$hdi_2015,merged$ratio_2015) #0.478
+
+ggplot(data=corr,mapping = aes(x=value))+
+  geom_histogram(size = 1)+
+  geom_vline(xintercept = c_95, color="red", size = 1) +
+  geom_text(aes(x = c_95, y = 50, label = "95th Percentile")) +
+  geom_vline(xintercept = actual, color="blue", size = 1) +
+  geom_text(aes(x = actual, y = 50, label = "Actual")) +
+  geom_vline(xintercept = c_05, color="red", size = 1) +
+  geom_text(aes(x = c_05, y = 50, label = "5th Percentile")) +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
 ```
+* I am answering the subquestion: what is the correlation between gender ratio in primary and secondary school and the HDI index for a country. 
+
+* This contributes to answering the overall question because it incorporates the overarching theme of education and how it relates to other sectors of a country.
+
+* Null hypothesis: There is a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
+* Alternative hypothesis: There is not a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
+* The test statistic is the correlation
+* Since the actual correlation is greater than the 95th percentile we can conclude the the data is significant and that there is a correlation
+
 
 ****
 #### Who Did What
