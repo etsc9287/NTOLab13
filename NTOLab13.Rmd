@@ -219,7 +219,66 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
+
+doubles <- merged2 %>%
+  select(-country)
 ```
+
+```{r,echo = TRUE}
+relevant_stats <- function(df, stat_type){
+  
+  if (stat_type == "spread") {
+    
+    type1 <- "Standard Deviation(s)"
+    output1 <- map_dbl(df, sd)
+    type2 <- "Inter-Quartile Range(s)"
+    output2 <- map_dbl(df, IQR)
+    list(type1, output1, type2, output2)
+    
+  } else if (stat_type == "average") {
+    
+    type1 <- "Median(s)"
+    output1 <- map_dbl(df, median)
+    type2 <- "Mean(s)"
+    output2 <- map_dbl(df, mean)
+    list(output1, output2)
+    
+  } else if (stat_type == "extreme") {
+    
+    type1 <- "Max(s)"
+    output1 <- map_dbl(df, max)
+    type2 <- "Min(s)"
+    output2 <- map_dbl(df, min)
+    list(type1, output1, type2, output2)
+    
+  } else {
+    
+    output1 <- "Please Enter a Known Stat Type (spread, average, extreme)"
+    output1
+  }
+
+  
+}
+```
+
+```{r,echo = FALSE,warning=FALSE}
+
+relevant_stats(doubles, "extreme")
+
+```
+
+* Subquestion: Is there a correlation between the proportion of children in a given country that don't go to school and the average 8th grade TIMSS (math achievement) score for that country?
+
+* Graph #1 Description: This scatterplot displays the raw data between proportion of children out of school and TIMSS scores for 8th graders.  I used geom_point and if_else statements to specify which countries I wanted labeled (Note: I could only access total population from the given countries and not children population, so my x-axis displays the proportion of the entire country's population that are children out of school.  This should have negligable effect on the correlation.)
+
+* Permutation Description:
++ Null Hypothesis: cor = 0
++ Alernative Hypothesis: cor != 0
++ Test Stat: Correlation
++ Conclusion / Percentile: My histogram shows that we can reject the null hypothesis as there is a clear negative correlation between proportion of a country's children in school and 8th grade math achievement for that country.  The 5th percentile correlation is a correlation constant calue of -0.298, and the actual value falls at the 2nd percentile at a correlation constant of -0.475.
+
+* Function / Mapping Description: My function takes a data frame and a statistic type as parameters and uses conditional statements to print various statistics of that data frame based on the statistic type.  Map_dbl is used to get the relevant statistic type(s) for each column of the data frame.  For example, if the user inputs "doubles" as the first parameter and "extreme" as the second parameter, my function will get the max's and mins for every column of the all-doubles data frame.  The output is a list so I can print multiple mappings.
+
 
 ****
 #### Anderson's Subquestion
@@ -269,12 +328,29 @@ ggplot(data = morcor1, mapping = aes(x = value)) +
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Literacy Rate in Adult Males and Females in 2011")
 ```
+```{r,echo = TRUE}
+
+dubs2 <- new1 %>%
+  select(-country)
+
+banderson <- function(df) {
+  x <- map_dbl(df, mean)
+  y <- map_dbl(df, sd)
+  output <- list(x,y)
+  output
+  
+}
+
+banderson(dubs2)
+```
 
 * The question I was trying to find out is the correlation between the literacy rate of men and women in the years 2010 and 2011.
 
 * From my permutation correlation studies I see that the data in both graphs is significant. The actual findings were past the 95th percentile and therefore the correlation of the literacy rate is significant.
 
 * I can conclude that the correlation of women and men from 10 various countries is significant. The rise of their literacy rates is significant data and the correlation of 0.97 which is from our results is positive.
+
+* The function uses map_dbl to output both the standard deviations and means for each column the the dataset.  This is relevant because the two stats go hand-in-hand.
 
 ****
 #### David's Subquestion
@@ -353,8 +429,9 @@ ggplot(data = percor,mapping = aes(x=value))+
  
  * The correlation between income and gov spending on college is negative and its significant occording to the permutation correlation test.The correlation of -.53 is statistically significant since it lies in the bottom 5th percentile.
  
- 
-```{r,echo=FALSE,warning=FALSE,message=FALSE}
+****
+
+```{r,,warning=FALSE,message=FALSE}
 mapp <- function(data){
 data <- data[-1]
   mean = map(data,mean)
@@ -368,28 +445,35 @@ x3 <- as.tibble(min)
 x4 <-as.tibble(max)
 x5 <- c("mean","median","min","max")
 
-
 y1 <- full_join(x,x1)
 y2 <- full_join(x3,x4)
 yote <- full_join(y1,y2) %>% mutate(map_type = x5)
 yote <- yote[c(3,2,1)]
 
-
 print(yote)
  }
 
-
 mapp(GDP)
 mapp(cost)
-
 
 ```
 
 * The function `mapp()` uses the functions `map()`, `inner_join()`, and `full_join()` to make a tibble for the mean, median, max, and min for each column of a dataset with only double columns. I applied this to the two datasets I was comparing, GDP and cost(which is the goverment spending on higher education).
  
- 
+
 ****
 #### Ryan's Subquestion
+****
+Subquestion: What is the correlation between gender ratio in primary and secondary school and the HDI index for a country?
+
+This contributes to answering the overall question because it incorporates the overarching theme of education and how it relates to other sectors of a country.
+
+Null hypothesis: There is a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
+
+Alternative hypothesis: There is not a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country.
+
+The test statistic is the correlation.
+
 ****
 
 ```{r,echo = FALSE}
@@ -401,8 +485,12 @@ merged <- inner_join(hdi, ratio, by = "country") %>%
   select(country, hdi_2015, ratio_2015)
 
 #using functions
+```
 
-col_summary <- function(df, fun) {
+
+
+```{r}
+funk <- function(df, fun) {
   out <- vector("double", length(df))
   for (i in seq_along(df)) {
     out[i] <- fun(df[[i]])
@@ -411,21 +499,33 @@ col_summary <- function(df, fun) {
 }
 
 merged1 <- merged %>% transmute(hdi = hdi_2015, ratio = ratio_2015)
-col_summary(merged1, sd) #find standard deviation of hdi and ratio
+funk(merged1, sd) #find standard deviation of hdi and ratio
 
-hdi1 <- merged1$hdi
+hdi1 <-merged1$hdi
 
+```
+
+The function above finds the standard deviation of  HDI index and ratio.
+
+****
+
+```{r,echo=FALSE}
 #using map
 map_dbl(hdi1, mean) #calculates mean of each row of hdi
+```
 
+* By using `map_dbl()`, I calculated the mean of each row of HDI index.
 
+****
+
+```{r,echo=FALSE}
 #Scatter Plot
 
 ggplot(data = merged) +
   geom_point(mapping = aes(x = hdi_2015, y = ratio_2015)) +
-  xlab("Percentage of Country Population that are Children out of School") +
-  ylab("Average TIMSS Score") +
-  ggtitle("Proportion of Children out of School vs. Math Achievement of 8th Graders") 
+  xlab("Ratio") +
+  ylab("HDI index") +
+  ggtitle("HDI index in 2015 Vs. Ratio in 2015") 
 
 #Permutation test
 
@@ -447,13 +547,8 @@ ggplot(data=corr,mapping = aes(x=value))+
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
 ```
-* I am answering the subquestion: what is the correlation between gender ratio in primary and secondary school and the HDI index for a country. 
 
-* This contributes to answering the overall question because it incorporates the overarching theme of education and how it relates to other sectors of a country.
 
-* Null hypothesis: There is a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
-* Alternative hypothesis: There is not a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
-* The test statistic is the correlation
 * Since the actual correlation is greater than the 95th percentile we can conclude the the data is significant and that there is a correlation
 
 
@@ -461,8 +556,8 @@ ggplot(data=corr,mapping = aes(x=value))+
 #### Who Did What
 ****
 
-* David -
+* David - individual section, general edits, helped resolve gitKraken merge errors.
 * Arie - 
 * Anderson - Individual Section
-* Ethan -
-* Ryan -
+* Ethan - Individual Section, Anderson function
+* Ryan - Individual section
