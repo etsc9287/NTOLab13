@@ -68,7 +68,11 @@ data2 <- read.csv('literacy_rate_adult_female_percent_of_females_ages_15_above.c
 ****
 #### Team Section
 ****
+* Overall question: How can better the education system? This question is important and interesting because school is cool and everyone needs to go to school and be cool. 
 
+* Datasets: Arie used the data sets "mean_years_in_school_women_percent_men_25_to_34_years.csv" that shows the ratio of feamle to male in percentage and "primary_completion_rate_total_percent_of_relevant_age_group.csv" the shows the gross intake ratio of primary compelation, this does not include students that dropped out. Ethan used the data sets "math_achievement_8th_grade.csv" and "children_out_of_school_primary.csv". David used "expenditure_per_student_tertiary_percent_of_gdp_per_person.csv" and 
+
+* Summary: 
 ```{r,echo = FALSE}
 
 ```
@@ -142,6 +146,9 @@ ggplot(data=corr2015, mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for 2015")
 
+```
+
+```{r, echo = TRUE}
 ### Function ###
 Q2 <- Q%>%
   select(-country)
