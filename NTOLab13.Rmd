@@ -499,9 +499,9 @@ map_dbl(hdi1, mean) #calculates mean of each row of hdi
 
 ggplot(data = merged) +
   geom_point(mapping = aes(x = hdi_2015, y = ratio_2015)) +
-  xlab("Percentage of Country Population that are Children out of School") +
-  ylab("Average TIMSS Score") +
-  ggtitle("Proportion of Children out of School vs. Math Achievement of 8th Graders") 
+  xlab("Ratio") +
+  ylab("HDI index") +
+  ggtitle("HDI index in 2015 Vs. Ratio in 2015") 
 
 #Permutation test
 
