@@ -76,6 +76,11 @@ data2 <- read.csv('literacy_rate_adult_female_percent_of_females_ages_15_above.c
 ****
 #### Arie's Subquestion
 ****
+* Question: Is there a correlation between completion of primary school and the gender ratio of mean years in school in 1999 and 2015? This question is important and interesting because this will show the how gender equality differs by country, and help us understand why this is happening.
+
+* Null hypotheises: There is not a significant correlation between gender ratio of mean years in school and primary school completion, there is not difference by country.
+
+* Alternative hypotheises: There is a significant correlation between gender ratio of mean years in school and primary school completion, there is a difference by country.
 
 ```{r,echo = FALSE, warning=FALSE, message=FALSE}
 
@@ -84,13 +89,18 @@ Q <- inner_join(MeanYears25to34, Literacy, by = "country")%>%select(c(country, `
   filter(!is.na(`1999.y`), !is.na(`2015.y`), country == "Switzerland"| country == "South Korea" | country == "Sweden" | country == "Belize" | country == "Colombia" | country == "Cuba" | country == "Ethiopia" | country == "Guatemala" | country == "Ghana" | country == "India" | country == "Mexico"| country == "Venezuela" | country == "Palestine" | country == "Italy" | country == "Austria")
 
 ### ggplot ###
+plot.1999 <- ggplot(data = Q, mapping = aes(x = `1999.x`, y = `1999.y`, color = country))+geom_point()+
+  geom_smooth(mapping = aes(x = `1999.x`, y = `1999.y`), method = "lm", se = FALSE, size = .5, color = "black")+
+  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion 1999")
+plot.1999
+plot.2015 <-ggplot(data = Q, mapping = aes(x = `2015.x`, y = `2015.y`, color = country))+geom_point()+geom_smooth(mapping = aes(x = `2015.x`, y = `2015.y`), method = "lm", se = FALSE, size = .5, color = "black")+
+  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion 2015")
+plot.2015
 
-ggplot(data = Q)+geom_line(mapping = aes(x = `1999.x`, y = `1999.y`, color = "1999"))+geom_line(mapping = aes(x = `2015.x`, y = `2015.y`, color = "2015"))+
-  geom_smooth(mapping = aes(x = `1999.x`, y = `1999.y`), method = "lm", se = FALSE, size = .5, color = "black")+geom_smooth(mapping = aes(x = `2015.x`, y = `2015.y`), method = "lm", se = FALSE, size = .5, color = "black")+
-  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion")
 ```
 
-```{r,echo = FALSE, warning=FALSE}
+
+```{r,echo = FALSE, warning=FALSE, message=FALSE}
 ### actual correlation ###
 bb1999 <- cor(Q$`1999.x`, Q$`1999.y`)
 
@@ -118,9 +128,38 @@ ggplot(data=corr1999, mapping = aes(x=value))+
   geom_text(aes(x = ccP5, y = 3, label = "5th Percentile")) +
   xlab("Correlation Constant") +
   ylab("Count") +
-  ggtitle("Correlation Permutation Test for Average years in school vs. Primary school completion in 1999")
+  ggtitle("Correlation Permutation Test in 1999")
+
+ggplot(data=corr2015, mapping = aes(x=value))+
+  geom_histogram(size = 1)+
+  geom_vline(xintercept = ccp95, color="red", size = 1) +
+  geom_text(aes(x = cc95, y = 3, label = "95th Percentile")) +
+  geom_vline(xintercept = bb1999, color="blue", size = 1) +
+  geom_text(aes(x = bb1999, y = 3, label = "Actual")) +
+  geom_vline(xintercept = cc5, color="red", size = 1) +
+  geom_text(aes(x = cc5, y = 3, label = "5th Percentile")) +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for 2015")
+
+### Function ###
+Q2 <- Q%>%
+  select(-country)
+
+fun <-function(df,sd){
+  dg <- map_dbl(df,sd)
+  
+  dg
+ 
+}
+
+fun(Q2, sd)
 
 ```
+
+* Findings: From my correlation permutation tests I found that for both years there is a significant correlation bewteen gender ratio of the number years attending school up to university and completion of primary school. The correlation for 1999 was 0.8 and 2015 was 0.6. This shows that there was a stronger positive correlation amoungst other countires 1999 than in 2015. This makes sense because in poorer countries there is still more gender inequality compared to more develpoed countries. Also, since both correlations are past the 95th percentile we can say both are statisitcally significant and lables to matter.
+
+* Description: My function uses `map_dbl` to show the standard deviation of a data frame for each column.
 
 ****
 #### Ethan's Subquestion
@@ -173,7 +212,68 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
+<<<<<<< Updated upstream
+=======
+doubles <- merged2 %>%
+  select(-country)
 ```
+
+```{r,echo = TRUE}
+relevant_stats <- function(df, stat_type){
+  
+  if (stat_type == "spread") {
+    
+    type1 <- "Standard Deviation(s)"
+    output1 <- map_dbl(df, sd)
+    type2 <- "Inter-Quartile Range(s)"
+    output2 <- map_dbl(df, IQR)
+    list(type1, output1, type2, output2)
+    
+  } else if (stat_type == "average") {
+    
+    type1 <- "Median(s)"
+    output1 <- map_dbl(df, median)
+    type2 <- "Mean(s)"
+    output2 <- map_dbl(df, mean)
+    list(output1, output2)
+    
+  } else if (stat_type == "extreme") {
+    
+    type1 <- "Max(s)"
+    output1 <- map_dbl(df, max)
+    type2 <- "Min(s)"
+    output2 <- map_dbl(df, min)
+    list(type1, output1, type2, output2)
+    
+  } else {
+    
+    output1 <- "Please Enter a Known Stat Type (spread, average, extreme)"
+    output1
+  }
+
+  
+}
+```
+
+```{r,echo = FALSE,warning=FALSE}
+
+relevant_stats(doubles, "extreme")
+
+>>>>>>> Stashed changes
+```
+
+* Subquestion: Is there a correlation between the proportion of children in a given country that don't go to school and the average 8th grade TIMSS (math achievement) score for that country?
+
+* Graph #1 Description: This scatterplot displays the raw data between proportion of children out of school and TIMSS scores for 8th graders.  I used geom_point and if_else statements to specify which countries I wanted labeled (Note: I could only access total population from the given countries and not children population, so my x-axis displays the proportion of the entire country's population that are children out of school.  This should have negligable effect on the correlation.)
+
+* Permutation Description:
++ Null Hypothesis: cor = 0
++ Alernative Hypothesis: cor != 0
++ Test Stat: Correlation
++ Conclusion / Percentile: My histogram shows that we can reject the null hypothesis as there is a clear negative correlation between proportion of a country's children in school and 8th grade math achievement for that country.  The 5th percentile correlation is a correlation constant calue of -0.298, and the actual value falls at the 2nd percentile at a correlation constant of -0.475.
+
+* Function / Mapping Description: My function takes a data frame and a statistic type as parameters and uses conditional statements to print various statistics of that data frame based on the statistic type.  Map_dbl is used to get the relevant statistic type(s) for each column of the data frame.  For example, if the user inputs "doubles" as the first parameter and "extreme" as the second parameter, my function will get the max's and mins for every column of the all-doubles data frame.  The output is a list so I can print multiple mappings.
+
 
 ****
 #### Anderson's Subquestion
