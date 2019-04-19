@@ -321,12 +321,29 @@ ggplot(data = morcor1, mapping = aes(x = value)) +
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Literacy Rate in Adult Males and Females in 2011")
 ```
+```{r,echo = TRUE}
+
+dubs2 <- new1 %>%
+  select(-country)
+
+banderson <- function(df) {
+  x <- map_dbl(df, mean)
+  y <- map_dbl(df, sd)
+  output <- list(x,y)
+  output
+  
+}
+
+banderson(dubs2)
+```
 
 * The question I was trying to find out is the correlation between the literacy rate of men and women in the years 2010 and 2011.
 
 * From my permutation correlation studies I see that the data in both graphs is significant. The actual findings were past the 95th percentile and therefore the correlation of the literacy rate is significant.
 
 * I can conclude that the correlation of women and men from 10 various countries is significant. The rise of their literacy rates is significant data and the correlation of 0.97 which is from our results is positive.
+
+* The function uses map_dbl to output both the standard deviations and means for each column the the dataset.  This is relevant because the two stats go hand-in-hand.
 
 ****
 #### David's Subquestion
