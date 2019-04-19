@@ -58,6 +58,11 @@ Literacy <- read_csv("primary_completion_rate_total_percent_of_relevant_age_grou
 #Ryan's csvs
 hdi <- read_csv("hdi.csv")
 ratio <- read_csv("ratio.csv")
+
+#Anderson's csvs
+data1 <- read.csv('literacy_rate_adult_male_percent_of_males_ages_15_and_above (1).csv')
+data2 <- read.csv('literacy_rate_adult_female_percent_of_females_ages_15_above.csv')
+
 ```
 
 ****
@@ -175,8 +180,55 @@ ggplot(data=corr,mapping = aes(x=value))+
 ****
 
 ```{r,echo = FALSE}
+merged <- inner_join(data1,data2, by="country")
+new <- merged[,c(1,37:38, 74:75)]
+new1 <- new %>%
+  filter(country == "Colombia" | country == "Dominican Republic" | country == "Ecuador" | country == "Egypt" | country == "Honduras" | country == "Jordan" | country == "Mali" | country == "Mexico" |country == "Palestine" | country == "Turkey") %>%
+  filter(!is.na('X2010.x') & !is.na('X2010.y') & !is.na('X2011.x') & !is.na('X2011.y'))
 
+new1 <- as.tibble(new1)
+mop <- cor(new1$X2010.x, new1$X2010.y)
+bop <- cor(new1$X2011.x, new1$X2011.y)
+morcor <- perm_cor(1000, new1$X2010.x, new1$X2010.y)
+cor95 <- quantile(morcor$value,.95)
+cor05 <- quantile(morcor$value,.05)
+actual <- cor(new1$X2010.x, new1$X2010.y)
+ggplot(data = morcor, mapping = aes(x = value)) +
+  geom_histogram(size = 1) +
+  geom_vline(xintercept = cor95, color="red", size = 1) +
+  geom_text(aes(x = cor95, y = 200, label = "95th Percentile")) +
+  geom_vline(xintercept = actual, color="blue", size = 1) +
+  geom_text(aes(x = actual, y = 200, label = "Actual")) +
+  geom_vline(xintercept = cor05, color="red", size = 1) +
+  geom_text(xintercept = cor05, y = 200, label = "5th Percentile")+
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for Literacy Rate in Adult Males and Females in 2010")
 ```
+
+```{r,echo = FALSE}
+morcor1 <- perm_cor(1000, new1$X2011.x, new1$X2011.y)
+corr95 <- quantile(morcor1$value,.95)
+corr05 <- quantile(morcor1$value,.05)
+actual1 <- cor(new1$X2011.x, new1$X2011.y)
+ggplot(data = morcor1, mapping = aes(x = value)) +
+  geom_histogram(size = 1) +
+  geom_vline(xintercept = corr95, color = "red", size = 1) +
+  geom_text(aes(x = corr95, y = 150, label = "95th Percentile")) +
+  geom_vline(xintercept = actual1, color = "blue", size = 1) +
+  geom_text(aes(x = actual1, y = 150, label = "Actual")) +
+  geom_vline(xintercept = corr05, color = "red", size = 1) +
+  geom_text(xintercept = corr05, y = 150, label = "5th Percentile") +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for Literacy Rate in Adult Males and Females in 2011")
+```
+
+* The question I was trying to find out is the correlation between the literacy rate of men and women in the years 2010 and 2011.
+
+* From my permutation correlation studies I see that the data in both graphs is significant. The actual findings were past the 95th percentile and therefore the correlation of the literacy rate is significant.
+
+* I can conclude that the correlation of women and men from 10 various countries is significant. The rise of their literacy rates is significant data and the correlation of 0.97 which is from our results is positive.
 
 ****
 #### David's Subquestion
@@ -312,6 +364,6 @@ ggplot(data=corr,mapping = aes(x=value))+
 
 * David -
 * Arie - 
-* Anderson - 
+* Anderson - Individual Section
 * Ethan -
 * Ryan -
