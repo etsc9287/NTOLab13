@@ -307,8 +307,9 @@ ggplot(data = percor,mapping = aes(x=value))+
  
  * The correlation between income and gov spending on college is negative and its significant occording to the permutation correlation test.The correlation of -.53 is statistically significant since it lies in the bottom 5th percentile.
  
- 
-```{r,echo=FALSE,warning=FALSE,message=FALSE}
+****
+
+```{r,,warning=FALSE,message=FALSE}
 mapp <- function(data){
 data <- data[-1]
   mean = map(data,mean)
@@ -322,28 +323,35 @@ x3 <- as.tibble(min)
 x4 <-as.tibble(max)
 x5 <- c("mean","median","min","max")
 
-
 y1 <- full_join(x,x1)
 y2 <- full_join(x3,x4)
 yote <- full_join(y1,y2) %>% mutate(map_type = x5)
 yote <- yote[c(3,2,1)]
 
-
 print(yote)
  }
 
-
 mapp(GDP)
 mapp(cost)
-
 
 ```
 
 * The function `mapp()` uses the functions `map()`, `inner_join()`, and `full_join()` to make a tibble for the mean, median, max, and min for each column of a dataset with only double columns. I applied this to the two datasets I was comparing, GDP and cost(which is the goverment spending on higher education).
  
- 
+
 ****
 #### Ryan's Subquestion
+****
+Subquestion: What is the correlation between gender ratio in primary and secondary school and the HDI index for a country?
+
+This contributes to answering the overall question because it incorporates the overarching theme of education and how it relates to other sectors of a country.
+
+Null hypothesis: There is a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
+
+Alternative hypothesis: There is not a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country.
+
+The test statistic is the correlation.
+
 ****
 
 ```{r,echo = FALSE}
@@ -355,8 +363,12 @@ merged <- inner_join(hdi, ratio, by = "country") %>%
   select(country, hdi_2015, ratio_2015)
 
 #using functions
+```
 
-col_summary <- function(df, fun) {
+
+
+```{r}
+funk <- function(df, fun) {
   out <- vector("double", length(df))
   for (i in seq_along(df)) {
     out[i] <- fun(df[[i]])
@@ -365,14 +377,26 @@ col_summary <- function(df, fun) {
 }
 
 merged1 <- merged %>% transmute(hdi = hdi_2015, ratio = ratio_2015)
-col_summary(merged1, sd) #find standard deviation of hdi and ratio
+funk(merged1, sd) #find standard deviation of hdi and ratio
 
-hdi1 <- merged1$hdi
+hdi1 <-merged1$hdi
 
+```
+
+The function above finds the standard deviation of  HDI index and ratio.
+
+****
+
+```{r,echo=FALSE}
 #using map
 map_dbl(hdi1, mean) #calculates mean of each row of hdi
+```
 
+* By using `map_dbl()`, I calculated the mean of each row of HDI index.
 
+****
+
+```{r,echo=FALSE}
 #Scatter Plot
 
 ggplot(data = merged) +
@@ -401,13 +425,8 @@ ggplot(data=corr,mapping = aes(x=value))+
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
 ```
-* I am answering the subquestion: what is the correlation between gender ratio in primary and secondary school and the HDI index for a country. 
 
-* This contributes to answering the overall question because it incorporates the overarching theme of education and how it relates to other sectors of a country.
 
-* Null hypothesis: There is a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
-* Alternative hypothesis: There is not a significant correlation between the ratio of boys to girls in primary and secondary school and the HDI index of a country
-* The test statistic is the correlation
 * Since the actual correlation is greater than the 95th percentile we can conclude the the data is significant and that there is a correlation
 
 
@@ -415,8 +434,8 @@ ggplot(data=corr,mapping = aes(x=value))+
 #### Who Did What
 ****
 
-* David -
+* David - individual section, general edits, helped resolve gitKraken merge errors.
 * Arie - 
 * Anderson - Individual Section
 * Ethan -
-* Ryan -
+* Ryan - Individual section
