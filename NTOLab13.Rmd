@@ -173,46 +173,6 @@ ggplot(data=corr,mapping = aes(x=value))+
   ylab("Count") +
   ggtitle("Correlation Permutation Test for Children not in School vs. Math Scores")
 
-doubles <- merged2 %>%
-  select(-country)
-
-relevant_stats <- function(df, stat_type){
-  
-  if (stat_type == "spread") {
-    
-    type1 <- "Standard Deviation(s)"
-    output1 <- map_dbl(df, sd)
-    type2 <- "Inter-Quartile Range(s)"
-    output2 <- map_dbl(df, IQR)
-    list(type1, output1, type2, output2)
-    
-  } else if (stat_type == "average") {
-    
-    type1 <- "Median(s)"
-    output1 <- map_dbl(df, median)
-    type2 <- "Mean(s)"
-    output2 <- map_dbl(df, mean)
-    list(output1, output2)
-    
-  } else if (stat_type == "extreme") {
-    
-    type1 <- "Max(s)"
-    output1 <- map_dbl(df, max)
-    type2 <- "Min(s)"
-    output2 <- map_dbl(df, min)
-    list(type1, output1, type2, output2)
-    
-  } else {
-    
-    output1 <- "Please Enter a Known Stat Type (spread, average, extreme)"
-    output1
-  }
-
-  
-}
-
-relevant_stats(doubles, "extreme")
-
 ```
 
 ****
@@ -273,7 +233,14 @@ ggplot(data = morcor1, mapping = aes(x = value)) +
 ****
 #### David's Subquestion
 ****
- * Is there a coorelation between the percent of money  goverment spends on higher level education and the average income of a person??
+ Is there a coorelation between the percent of money  goverment spends on higher level education and the average income of a person on a global level??
+ 
+ Null Hypothesis: There is no correlation between the percent of money goverments spent on higher education and the average income of a person on a global level.
+ 
+Alternative Hypothesis: There is correlation between the percent of money goverments spent on higher education and the average income of a person on a global level.
+
+* The test statistic is correlation
+
  
 ```{r,echo = FALSE}
 tertcost <-read.csv("expenditure_per_student_tertiary_percent_of_gdp_per_person.csv")
@@ -306,11 +273,22 @@ plot <- inner_join(GDP1,cost1,by = "year")
 ggplot(data = plot)+
   geom_point(mapping = aes(x = year, y = ave_cost), color = "red")+
   geom_smooth(mapping = aes(x = year, y = ave_cost),method = "lm", se = FALSE,color = "red") + ggtitle("Average Global Goverment Spending per person on College Education over time","Note: In Percent based on average GDP per person") + ylab("Average Spending")
+```
+
+* The graph above shows the average amount of money the goverments spend on college education per person. The average is in terms of percent. Percent = money spend by countries on education per person/ average GDP per person. The graph shows a negative trend as the years go by. 
+
+****
+
+```{r,echo = FALSE}
 ggplot(data = plot)+
     geom_point(mapping = aes(x = year, y = ave_income), color = "blue")+
-    geom_smooth(mapping = aes(x = year, y = ave_income),method = "lm", se = FALSE)+ ggtitle("Average Global GDP per capita(inflation included) over time") + ylab("Average GDP")
+    geom_smooth(mapping = aes(x = year, y = ave_income),method = "lm", se = FALSE)+ ggtitle("Average Global GDP per person(inflation included) over time") + ylab("Average GDP")
 
+```
 
+* The graph above shows the average GDP per person. There is an upward trend with the average GDP. This makes sense. As technology advances throughout kthe world, it drives economic growth. 
+
+```{r, echo = FALSE}
 corrd <- cor(plot$ave_income,plot$ave_cost)
 percor <- perm_cor(10000,plot$ave_income,plot$ave_cost)
 cd_95 <- quantile(percor$value,.95) 
@@ -325,9 +303,9 @@ ggplot(data = percor,mapping = aes(x=value))+
   ggtitle("Permutation Correlation Test: Average GDP and average government college spending ")+ xlab("Correlation")
 ```
 
- * SO if a band were to conver 50% of your ticket then you will only pay the other 50%. However if they say they will cover $50 of your ticket. Has inflation rises, they will cover less and less of your ticket. This seems to be the same trend with goverment funding to colleges and income. The percent of college funding ( based on average persons income) is going down while the income is increasing. This seems like they are spending a fixed amount even though thier average income is increasing.
+ * To explain the connection between goverment spending and GDP, the followoing analogy is helpfull. If a band were to cover 40% of your ticket then you will only pay the other 60%. However if they say they will cover $50 of your ticket. Has inflation rises, they will cover less and less of your ticket. This seems to be the same trend with goverment funding to colleges. The percent of college funding is decreasing while the income is increasing. This seems like goverments are spending a fixed amount even though thier average income per person is increasing.
  
- * The correlation between income and gov spending on college is negative and its significant occording to the permutation correlation test. The coor is -.53. 
+ * The correlation between income and gov spending on college is negative and its significant occording to the permutation correlation test.The correlation of -.53 is statistically significant since it lies in the bottom 5th percentile.
  
  
 ```{r,echo=FALSE,warning=FALSE,message=FALSE}
