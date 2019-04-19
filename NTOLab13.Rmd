@@ -50,6 +50,10 @@ result <- as.tibble(result)
 #Ethan csvs
 math <- read_csv("math_achievement_8th_grade.csv")
 out_of_school <- read_csv("children_out_of_school_primary.csv")
+
+#Arie's Csv
+MeanYears25to34 <- read_csv("mean_years_in_school_women_percent_men_25_to_34_years.csv")
+Literacy <- read_csv("primary_completion_rate_total_percent_of_relevant_age_group.csv")
 ```
 
 ****
@@ -64,7 +68,48 @@ out_of_school <- read_csv("children_out_of_school_primary.csv")
 #### Arie's Subquestion
 ****
 
-```{r,echo = FALSE}
+```{r,echo = FALSE, warning=FALSE, message=FALSE}
+
+### merge/tidy ###
+Q <- inner_join(MeanYears25to34, Literacy, by = "country")%>%select(c(country, `1999.x`, `2015.x`, `1999.y`, `2015.y`))%>%
+  filter(!is.na(`1999.y`), !is.na(`2015.y`), country == "Switzerland"| country == "South Korea" | country == "Sweden" | country == "Belize" | country == "Colombia" | country == "Cuba" | country == "Ethiopia" | country == "Guatemala" | country == "Ghana" | country == "India" | country == "Mexico"| country == "Venezuela" | country == "Palestine" | country == "Italy" | country == "Austria")
+
+### ggplot ###
+
+ggplot(data = Q)+geom_line(mapping = aes(x = `1999.x`, y = `1999.y`, color = "1999"))+geom_line(mapping = aes(x = `2015.x`, y = `2015.y`, color = "2015"))+
+  geom_smooth(mapping = aes(x = `1999.x`, y = `1999.y`), method = "lm", se = FALSE, size = .5, color = "black")+geom_smooth(mapping = aes(x = `2015.x`, y = `2015.y`), method = "lm", se = FALSE, size = .5, color = "black")+
+  xlab("Gender Ratio of mean years in school (% Ages 25-34)")+ylab("Primary School Completion (%)")+ggtitle("Average years in school vs. Primary school completion")
+```
+
+```{r,echo = FALSE, warning=FALSE, message=FALSE}
+### actual correlation ###
+bb1999 <- cor(Q$`1999.x`, Q$`1999.y`)
+
+bb2015<- cor(Q$`2015.x`, Q$`2015.y`)
+
+Q = as.tibble(Q)
+
+corr1999 <- perm_cor(1000,Q$`1999.x`, Q$`1999.y`)
+ccp95 <- quantile(corr1999$value, .95)
+ccP5 <- quantile(corr1999$value, .05)
+
+corr2015 <- perm_cor(1000,Q$`2015.x`, Q$`2015.y`)
+cc95 <- quantile(corr2015$value, .95)
+cc5 <- quantile(corr2015$value, .05)
+
+### ggplot correlation permutation test ###
+
+ggplot(data=corr1999, mapping = aes(x=value))+
+  geom_histogram(size = 1)+
+  geom_vline(xintercept = ccp95, color="red", size = 1) +
+  geom_text(aes(x = ccp95, y = 3, label = "95th Percentile")) +
+  geom_vline(xintercept = bb1999, color="blue", size = 1) +
+  geom_text(aes(x = bb1999, y = 3, label = "Actual")) +
+  geom_vline(xintercept = ccP5, color="red", size = 1) +
+  geom_text(aes(x = ccP5, y = 3, label = "5th Percentile")) +
+  xlab("Correlation Constant") +
+  ylab("Count") +
+  ggtitle("Correlation Permutation Test for Average years in school vs. Primary school completion in 1999")
 
 ```
 
